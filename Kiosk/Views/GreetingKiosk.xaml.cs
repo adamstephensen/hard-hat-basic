@@ -78,7 +78,7 @@ namespace IntelligentKioskSample.Views
             //insert keys and storage account values 
             _visionClient = new VisionServiceClient("<>", "https://southeastasia.api.cognitive.microsoft.com/vision/v1.0");
             storageAccount = CloudStorageAccount.Parse("<>");
-            
+
             //Generate dummy users 
             allFiles = new WorkerDataHelper().Initialise();
 
@@ -131,7 +131,7 @@ namespace IntelligentKioskSample.Views
 
                 //simplify timing 
                 //add counter 
-                await Task.Delay(this.cameraControl.NumFacesOnLastFrame == 0 ? 100 : 1000);
+                await Task.Delay(this.cameraControl.NumFacesOnLastFrame == 0 ? 100 : 5000);
             }
         }
 
@@ -246,13 +246,22 @@ namespace IntelligentKioskSample.Views
 
         private async Task<List<Tag>> TaggingAnalysisFunction(Task<Stream> task)
         {
-            // Submit image to API. 
-            var analysis = await _visionClient.GetTagsAsync(task.Result);
-
             List<Tag> tags = new List<Tag>();
-            foreach (Tag tag in analysis.Tags)
+
+            try
             {
-                tags.Add(tag);
+                // Submit image to API. 
+                var analysis = await _visionClient.GetTagsAsync(task.Result);
+
+                foreach (Tag tag in analysis.Tags)
+                {
+                    tags.Add(tag);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString()); //todo: log propperly
+                //throw;
             }
 
             // Output. 
